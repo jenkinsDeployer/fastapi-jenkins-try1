@@ -1,0 +1,33 @@
+pipeline {
+    agent any
+
+    environment {
+        VENV_DIR = "venv"
+    }
+
+    stages {
+        stage('Clone Repo') {
+            steps {
+                git credentialsId: 'github-creds', url: 'https://github.com/YOUR_USERNAME/fastapi-jenkins-demo.git'
+            }
+        }
+
+        stage('Set Up Python Env') {
+            steps {
+                bat "python -m venv %VENV_DIR%"
+                bat ".\\%VENV_DIR%\\Scripts\\activate && pip install -r requirements.txt"
+            }
+        }
+
+        stage('Run FastAPI App') {
+            steps {
+                bat ".\\%VENV_DIR%\\Scripts\\activate && uvicorn main:app --host 127.0.0.1 --port 8000 &"
+            }
+        }
+    }
+}
+
+
+
+
+git remote add origin https://github.com/jenkinsDeployer/fastapi-jenkins-demo.git
