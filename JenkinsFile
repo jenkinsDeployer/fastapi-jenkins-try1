@@ -28,5 +28,15 @@ pipeline {
                 bat "%ACTIVATE% && pytest tests/"
             }
         }
+
+        stage('Run FastAPI Server') {
+            steps {
+                bat """
+                    %ACTIVATE%
+                    start /B uvicorn main:app --host 127.0.0.1 --port 8000
+                    timeout /T 10
+                """
+            }
+        }
     }
 }
