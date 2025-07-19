@@ -1,41 +1,73 @@
+// pipeline {
+//     agent any
+
+//     environment {
+//         VENV_DIR = "venv"
+//         ACTIVATE = ".\\venv\\Scripts\\activate"
+//         PYTHON = ".\\venv\\Scripts\\python.exe"
+//         PIP = ".\\venv\\Scripts\\pip.exe"
+//     }
+
+//     stages {
+//         stage('Clone Repo') {
+//             steps {
+//                 git branch: 'main', url: 'https://github.com/jenkinsDeployer/fastapi-jenkins-try1.git'
+//             }
+//         }
+
+//         stage('Set Up Python Env') {
+//             steps {
+//                 bat "python -m venv %VENV_DIR%"
+//                 bat "%PYTHON% -m pip install --upgrade pip"
+//                 bat "%ACTIVATE% && %PIP% install -r requirements.txt && %PIP% install pytest"
+//             }
+//         }
+
+//         stage('Run Unit Tests') {
+//             steps {
+//                 bat "%ACTIVATE% && pytest tests/"
+//             }
+//         }
+
+//         stage('Run FastAPI Server') {
+//             steps {
+//                 bat """
+//                     %ACTIVATE%
+//                     start /B uvicorn main:app --host 127.0.0.1 --port 8000
+//                     timeout /T 10
+//                 """
+//             }
+//         }
+//     }
+// }
+
+
 pipeline {
     agent any
 
     environment {
         VENV_DIR = "venv"
-        ACTIVATE = ".\\venv\\Scripts\\activate"
-        PYTHON = ".\\venv\\Scripts\\python.exe"
-        PIP = ".\\venv\\Scripts\\pip.exe"
     }
 
     stages {
         stage('Clone Repo') {
             steps {
-                git branch: 'main', url: 'https://github.com/jenkinsDeployer/fastapi-jenkins-try1.git'
+                checkout scm
             }
         }
 
         stage('Set Up Python Env') {
             steps {
                 bat "python -m venv %VENV_DIR%"
-                bat "%PYTHON% -m pip install --upgrade pip"
-                bat "%ACTIVATE% && %PIP% install -r requirements.txt && %PIP% install pytest"
+                bat ".\\%VENV_DIR%\\Scripts\\python.exe -m pip install --upgrade pip"
+                bat ".\\%VENV_DIR%\\Scripts\\python.exe -m pip install -r requirements.txt"
+                bat ".\\%VENV_DIR%\\Scripts\\python.exe -m pip install pytest"
             }
         }
 
         stage('Run Unit Tests') {
             steps {
-                bat "%ACTIVATE% && pytest tests/"
-            }
-        }
-
-        stage('Run FastAPI Server') {
-            steps {
-                bat """
-                    %ACTIVATE%
-                    start /B uvicorn main:app --host 127.0.0.1 --port 8000
-                    timeout /T 10
-                """
+                bat ".\\%VENV_DIR%\\Scripts\\python.exe -m pytest tests/"
             }
         }
     }
