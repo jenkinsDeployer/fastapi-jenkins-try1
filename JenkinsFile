@@ -49,7 +49,6 @@ pipeline {
         VENV_DIR = "venv"
         PYTHON = ".\\venv\\Scripts\\python.exe"
         UVICORN = ".\\venv\\Scripts\\uvicorn.exe"
-        PID_FILE = "uvicorn.pid"
     }
 
     stages {
@@ -77,8 +76,8 @@ pipeline {
         stage('Run FastAPI Server') {
             steps {
                 bat """
-                    start /B cmd /c "%UVICORN% main:app --host 127.0.0.1 --port 8000 > uvicorn.log 2>&1"
-                    timeout /T 5
+                    start /B %UVICORN% main:app --host 127.0.0.1 --port 8000
+                    ping -n 6 127.0.0.1 > nul
                 """
             }
         }
@@ -86,7 +85,7 @@ pipeline {
         stage('Approval to Stop Server') {
             steps {
                 script {
-                    input message: '✅ FastAPI server started. Approve to stop it.'
+                    input message: '✅ FastAPI is running. Approve to stop the server.'
                 }
             }
         }
@@ -98,4 +97,5 @@ pipeline {
         }
     }
 }
+
 
